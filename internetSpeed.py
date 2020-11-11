@@ -1,9 +1,6 @@
 #!/usr/bin/python3
-import datetime
-import logging ,json
-import os
+import datetime, logging ,json, os, time
 import speedtest
-import time
 from influxdb import InfluxDBClient
 
 LOG_FILENAME = 'internetSpeed.log'
@@ -14,6 +11,7 @@ logging.basicConfig(filename=LOG_FILENAME,level=LOG_LEVEL)
 try:
 	with open('config.json', 'r') as f:
 		config = json.load(f)
+		logging.info('Config loaded ok')
 except IOError as e:
 	logging.error(e)
 
@@ -34,6 +32,7 @@ def persists(measurement, fields, time):
         "fields": fields
     }])
 
+
 influx_client = InfluxDBClient(host=influxdb_host, port=influxdb_port, database=influxdb_database)
 
 def get_speed():
@@ -52,6 +51,7 @@ def test_speed():
     persists(measurement='internet', fields={"donwload": speed['download']}, time=current_time)
     persists(measurement='internet', fields={"upload": speed['upload']}, time=current_time)
     persists(measurement='internet', fields={"ping": speed['ping']}, time=current_time)
+    logging.info('persisted to InfluxDB Ok')
 
 
 try:
